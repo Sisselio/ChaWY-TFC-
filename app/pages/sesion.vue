@@ -5,8 +5,8 @@ const formError = ref("");
 const supabase = useSupabaseClient();
 const data = ref([]);
 const error = ref(null);
-const email = ref("Test@gmail.com");
-const password = ref("Test@pwd1");
+const email = ref("");
+const password = ref("");
 const popupMessage = ref("");
 const showPopup = ref(false);
 
@@ -66,42 +66,74 @@ onMounted(async () => {
   error.value = err;
 });
 </script>
-
 <template>
-  <Navbar
-    :showLandingLinks="false"
-    :showRegisterLinks="true"
-    :showSesionLinks="false"
-  />
-  <Popup
-    v-if="showPopup"
-    :message="popupMessage"
-    :duration="3000"
-    @close="showPopup = false"
-  />
-  <form class="mt-16">
-    <DataInput
-      v-model="email"
-      type="email"
-      iconName="material-symbols:mail-outline"
-      :regex="/^[^\s@]+@[^\s@]+\.[^\s@]+$/"
-    >
-      <template #label>Email</template>
+  <div class="min-h-screen flex flex-col md:flex-row">
+    <!-- Lado izquierdo: Imagen (arriba en móvil) -->
+    <div
+      class="w-full md:w-1/2 h-64 md:h-auto bg-cover bg-center"
+      :style="{
+        backgroundImage:
+          'url(/paisaje-montanas-arboles-contra-cielo-puesta-sol_1048-21262.jpg)',
+      }"
+    ></div>
 
-      <template #error> El email no tiene un formato válido </template>
-    </DataInput>
-    <DataInput
-      v-model="password"
-      type="text"
-      iconName="mdi:password-outline"
-      :regex="/^(?=.*[A-Z])(?=.*[a-zA-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/"
+    <!-- Lado derecho: Formulario -->
+    <div
+      class="w-full md:w-1/2 flex flex-col justify-center items-center p-8 bg-[#ecd1b2]"
     >
-      <template #label>Contraseña</template>
+      <Navbar
+        :showLandingLinks="false"
+        :showRegisterLinks="true"
+        :showSesionLinks="false"
+      />
 
-      <template #error> La contraseña no tiene un formato válido </template>
-    </DataInput>
-    <br />
-    <br />
-    <button type="button" @click="validateData">Iniciar Sesión</button>
-  </form>
+      <Popup
+        v-if="showPopup"
+        :message="popupMessage"
+        :duration="3000"
+        @close="showPopup = false"
+      />
+
+      <!-- Encabezado del formulario -->
+      <div class="w-full max-w-md text-center mb-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+          Iniciar Sesión
+        </h1>
+        <p class="mt-2 text-sm md:text-base text-gray-700/90">
+          Tu próximo capítulo te espera
+        </p>
+      </div>
+
+      <!-- Formulario -->
+      <form class="w-full max-w-md flex flex-col gap-4">
+        <DataInput
+          v-model="email"
+          type="email"
+          iconName="material-symbols:mail-outline"
+          :regex="/^[^\s@]+@[^\s@]+\.[^\s@]+$/"
+        >
+          <template #label>Email</template>
+          <template #error>El email no tiene un formato válido</template>
+        </DataInput>
+
+        <DataInput
+          v-model="password"
+          type="text"
+          iconName="mdi:password-outline"
+          :regex="/^(?=.*[A-Z])(?=.*[a-zA-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/"
+        >
+          <template #label>Contraseña</template>
+          <template #error>La contraseña no tiene un formato válido</template>
+        </DataInput>
+
+        <button
+          type="button"
+          @click="validateData"
+          class="mt-4 bg-[#c9684a] text-white px-4 py-3 rounded-full hover:bg-[#b25738] transition-colors text-lg"
+        >
+          Iniciar Sesión
+        </button>
+      </form>
+    </div>
+  </div>
 </template>

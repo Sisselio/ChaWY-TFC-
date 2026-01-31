@@ -23,19 +23,23 @@ const regexText = computed<RegExp | null>(() => {
 
 const isValid = computed<boolean>(() => {
   if (!regexText.value) return true;
-  if (!props.modelValue) return false;
+  if (!props.modelValue) return true;
   return regexText.value.test(props.modelValue);
 });
 </script>
 
 <template>
   <div class="flex flex-col gap-2 mb-4">
-    <label :for="labelFor">
+    <label :for="labelFor" class="font-medium text-gray-700 font-serif">
       <slot name="label" />
     </label>
 
-    <div class="w-full">
-      <Icon :name="iconName" />
+    <div
+      class="flex items-center gap-2 rounded-full p-2"
+      :class="[isValid ? 'border-green-500' : 'border-red-500', 'border']"
+      style="background: linear-gradient(to right, #faedcd, #d09a63)"
+    >
+      <Icon :name="iconName" class="w-5 h-5 text-gray-400 flex-shrink-0" />
 
       <input
         :type="type"
@@ -44,12 +48,12 @@ const isValid = computed<boolean>(() => {
         @input="
           emit('update:modelValue', ($event.target as HTMLInputElement).value)
         "
-        :class="['border', isValid ? 'border-green-500' : 'border-red-500']"
+        class="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400"
       />
-
-      <p v-if="!isValid" class="mt-1 text-sm text-red-500">
-        <slot name="error" />
-      </p>
     </div>
+
+    <p v-if="!isValid" class="mt-1 text-sm text-red-500">
+      <slot name="error" />
+    </p>
   </div>
 </template>
