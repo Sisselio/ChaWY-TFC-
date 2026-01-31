@@ -1,6 +1,6 @@
+<style>
+@import "./styles/reset.css";
+</style>
 <template>
-  <div>
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
-  </div>
+  <NuxtPage />
 </template>
