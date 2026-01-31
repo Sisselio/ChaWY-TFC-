@@ -191,12 +191,17 @@ async function rechazar() {
 
   <div
     v-else-if="perfil"
-    class="relative w-full h-[calc(100vh-64px)] overflow-hidden"
+    class="relative w-full h-[calc(100vh-76px)] overflow-hidden"
   >
-    <div class="absolute inset-0 flex items-center justify-center">
+    <div
+      class="absolute inset-0 flex items-start md:items-center justify-center"
+    >
       <div
-        class="transition-transform duration-300 ease-in-out"
-        :class="showChat ? '-translate-x-full' : 'translate-x-0'"
+        class="transition-transform duration-300 ease-in-out mt-[76px] md:mt-0"
+        :class="{
+          'translate-x-0': !showChat,
+          'md:-translate-x-full': showChat,
+        }"
       >
         <div
           class="relative w-[340px] h-[520px] rounded-2xl overflow-hidden shadow-xl"
@@ -228,16 +233,22 @@ async function rechazar() {
             <div class="mt-4 flex justify-between">
               <button
                 @click="rechazar"
-                class="w-12 h-12 rounded-full bg-red-500 text-white text-xl"
+                class="w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center"
               >
-                ❌
+                <Icon
+                  name="maki:cross"
+                  class="w-2/3 h-2/3 text-white bg-black"
+                />
               </button>
 
               <button
                 @click="aceptar"
-                class="w-12 h-12 rounded-full bg-green-500 text-white text-xl"
+                class="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center"
               >
-                ❤️
+                <Icon
+                  name="mynaui:heart-solid"
+                  class="w-2/3 h-2/3 text-white bg-red-600"
+                />
               </button>
             </div>
           </div>
@@ -246,14 +257,16 @@ async function rechazar() {
     </div>
 
     <div
-      class="absolute top-0 right-0 h-full w-1/2 bg-[#f6ede6] border-l border-[#e3a587] transition-transform duration-300 ease-in-out"
-      :class="showChat ? 'translate-x-0' : 'translate-x-full'"
+      class="absolute top-0 right-0 h-full w-full md:w-1/2 bg-[#f6ede6] border-l border-[#e3a587] transition-transform duration-300 ease-in-out"
+      :class="
+        showChat ? 'translate-x-0' : 'translate-x-full md:translate-x-full'
+      "
     >
       <div class="h-full flex flex-col">
         <div class="p-4 font-semibold text-[#6b3f2b] border-b">Chat</div>
 
         <div class="flex-1 p-4 overflow-y-auto text-sm text-gray-700">
-          <p class="opacity-50">Aquí irá el chat 👀</p>
+          <p class="opacity-50"></p>
         </div>
 
         <div class="p-4 border-t flex gap-2">
@@ -275,13 +288,7 @@ async function rechazar() {
       @click="toggleChat"
       class="fixed bottom-1 right-6 z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#a85230] text-white text-xl shadow-lg flex items-center justify-center"
     >
-      💬
+      <Icon name="tabler:message-filled" class="w-2/3 h-2/3 text-white" />
     </button>
-  </div>
-  <div
-    v-else
-    class="flex justify-center items-center h-full text-gray-500 text-lg"
-  >
-    No hay más perfiles disponibles 🙂
   </div>
 </template>

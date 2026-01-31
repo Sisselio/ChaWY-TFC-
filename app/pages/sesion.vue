@@ -68,7 +68,6 @@ onMounted(async () => {
 </script>
 <template>
   <div class="min-h-screen flex flex-col md:flex-row">
-    <!-- Lado izquierdo: Imagen (arriba en móvil) -->
     <div
       class="w-full md:w-1/2 h-64 md:h-auto bg-cover bg-center"
       :style="{
@@ -77,7 +76,6 @@ onMounted(async () => {
       }"
     ></div>
 
-    <!-- Lado derecho: Formulario -->
     <div
       class="w-full md:w-1/2 flex flex-col justify-center items-center p-8 bg-[#ecd1b2]"
     >
@@ -94,7 +92,6 @@ onMounted(async () => {
         @close="showPopup = false"
       />
 
-      <!-- Encabezado del formulario -->
       <div class="w-full max-w-md text-center mb-6">
         <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
           Iniciar Sesión
@@ -104,7 +101,6 @@ onMounted(async () => {
         </p>
       </div>
 
-      <!-- Formulario -->
       <form class="w-full max-w-md flex flex-col gap-4">
         <DataInput
           v-model="email"
@@ -118,12 +114,16 @@ onMounted(async () => {
 
         <DataInput
           v-model="password"
-          type="text"
+          type="password"
           iconName="mdi:password-outline"
           :regex="/^(?=.*[A-Z])(?=.*[a-zA-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/"
         >
           <template #label>Contraseña</template>
-          <template #error>La contraseña no tiene un formato válido</template>
+          <template #error
+            >La contraseña debe tener una longitud minima de 8 caracteres,
+            incluyendo numeros, mayusculas y al menos un caracter
+            especial</template
+          >
         </DataInput>
 
         <button

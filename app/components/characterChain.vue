@@ -3,9 +3,9 @@ import { ref } from "vue";
 const hovered = ref(false);
 
 const characters = [
-  { img: "/num.jpg", alt: "Character 1" },
-  { img: "/num.jpg", alt: "Character 2" },
-  { img: "/num.jpg", alt: "Character 3" },
+  { img: "/girl1.jpg", alt: "Character 1" },
+  { img: "/girl2.jpg", alt: "Character 2" },
+  { img: "/couple2.jpg", alt: "Character 3" },
   { label: "+2k" },
 ];
 

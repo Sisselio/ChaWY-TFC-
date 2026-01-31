@@ -148,6 +148,8 @@ async function uploadImage(file, tipo) {
 }
 
 async function updateProfile() {
+  if (!validateProfileFields()) return;
+
   const fotoPerfilUrl = await uploadImage(fotoPerfil.value, "perfil");
   const fotoCartaUrl = await uploadImage(fotoCarta.value, "carta");
   const { data: existingEmail, error: selectError } = await supabase
@@ -194,7 +196,40 @@ async function updateProfile() {
 
   router.push("/home");
 }
+function validateProfileFields() {
+  fechaError.value = validateDate(fechaNacimiento.value);
+  if (fechaError.value) {
+    triggerPopup(fechaError.value);
+    return false;
+  }
 
+  if (!genero.value) {
+    triggerPopup("Por favor selecciona tu género");
+    return false;
+  }
+  if (!generoPreferido.value) {
+    triggerPopup("Por favor selecciona tu género preferido");
+    return false;
+  }
+  if (!biografia.value.trim()) {
+    triggerPopup("La biografía no puede estar vacía");
+    return false;
+  }
+  if (!localizacion.value) {
+    triggerPopup("Por favor selecciona tu localización");
+    return false;
+  }
+  if (!fotoPerfil.value) {
+    triggerPopup("Por favor sube tu foto de perfil");
+    return false;
+  }
+  if (!fotoCarta.value) {
+    triggerPopup("Por favor sube tu foto de carta");
+    return false;
+  }
+
+  return true;
+}
 watch(fechaNacimiento, validateFecha);
 </script>
 

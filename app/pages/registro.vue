@@ -90,7 +90,6 @@ const insertData = async () => {
 
 <template>
   <div class="min-h-screen flex flex-col md:flex-row">
-    <!-- Imagen izquierda -->
     <div
       class="md:w-1/2 w-full h-64 md:h-auto relative bg-cover bg-center"
       :style="{
@@ -98,7 +97,6 @@ const insertData = async () => {
           'url(/paisaje-montanas-arboles-contra-cielo-puesta-sol_1048-21262.jpg)',
       }"
     >
-      <!-- Texto solo visible en escritorio -->
       <div
         class="hidden md:block absolute bottom-1/3 left-4 md:left-8 text-white max-w-xs"
       >
@@ -110,7 +108,6 @@ const insertData = async () => {
       </div>
     </div>
 
-    <!-- Formulario derecha -->
     <div
       class="md:w-1/2 w-full flex flex-col justify-center items-center p-8 bg-[#ecd1b2]"
     >
@@ -127,7 +124,6 @@ const insertData = async () => {
         @close="showPopup = false"
       />
 
-      <!-- Encabezado del formulario -->
       <div class="w-full max-w-md text-center mb-6">
         <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
           Crea tu historia
@@ -137,7 +133,6 @@ const insertData = async () => {
         </p>
       </div>
 
-      <!-- Formulario -->
       <form class="w-full max-w-md flex flex-col gap-4">
         <DataInput
           v-model="user"
@@ -161,12 +156,16 @@ const insertData = async () => {
 
         <DataInput
           v-model="password"
-          type="text"
+          type="password"
           iconName="mdi:password-outline"
           :regex="/^(?=.*[A-Z])(?=.*[a-zA-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/"
         >
           <template #label>Contraseña</template>
-          <template #error>La contraseña no tiene un formato válido</template>
+          <template #error
+            >La contraseña debe tener una longitud minima de 8 caracteres,
+            incluyendo numeros, mayusculas y al menos un caracter
+            especial</template
+          >
         </DataInput>
 
         <button

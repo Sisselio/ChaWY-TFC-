@@ -8,7 +8,11 @@
           <div
             class="border-2 border-[#d5a25f] w-12 h-12 rounded-full flex justify-center items-center overflow-hidden"
           >
-            <img src="/num.jpg" alt="couple" />
+            <img
+              src="/couple1.jpg"
+              alt="couple"
+              class="w-full h-full object-cover"
+            />
           </div>
           <div>
             <h1 class="font-semibold text-sm sm:text-base">SARAH Y JAMES</h1>
@@ -41,7 +45,11 @@
           <div
             class="border-2 border-[#d5a25f] w-12 h-12 rounded-full flex justify-center items-center overflow-hidden"
           >
-            <img src="/num.jpg" alt="couple" />
+            <img
+              src="/couple2.jpg"
+              alt="couple"
+              class="w-full h-full object-cover"
+            />
           </div>
           <div>
             <h1 class="font-semibold text-sm sm:text-base">ELENA Y MARCO</h1>
@@ -73,10 +81,14 @@
           <div
             class="border-2 border-[#d5a25f] w-12 h-12 rounded-full flex justify-center items-center overflow-hidden"
           >
-            <img src="/num.jpg" alt="couple" />
+            <img
+              src="/couple3.jpg"
+              alt="couple"
+              class="w-full h-full object-cover"
+            />
           </div>
           <div>
-            <h1 class="font-semibold text-sm sm:text-base">ALEX Y RYAN</h1>
+            <h1 class="font-semibold text-sm sm:text-base">LAURA Y RYAN</h1>
             <p class="text-xs sm:text-sm text-gray-600 line-clamp-4">
               1 año juntos
             </p>
