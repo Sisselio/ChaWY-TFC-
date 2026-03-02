@@ -53,7 +53,7 @@ onMounted(() => {
     class="bg-[#fdf5ea] py-20 sm:py-24 md:py-32 px-6 sm:px-10 md:px-16 lg:px-24 text-center flex flex-col items-center"
   >
     <p class="text-xs sm:text-sm tracking-widest text-[#c96444] font-semibold">
-      ¿POR QUÉ ELEGIR HEARTMATCH?
+      ¿POR QUÉ ELEGIR CHAWY?
     </p>
 
     <h1

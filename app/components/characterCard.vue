@@ -31,9 +31,9 @@
       </div>
 
       <p class="text-xs sm:text-sm text-gray-600 line-clamp-4">
-        "Ambos estábamos cansados de aplicaciones superficiales. HeartMatch nos
-        ayudó a conectar por nuestros amor al senderismo y los libros. ¡Ahora
-        estamos comprometidos!"
+        "Ambos estábamos cansados de aplicaciones superficiales. ChaWY nos ayudó
+        a conectar por nuestros amor al senderismo y los libros. ¡Ahora estamos
+        comprometidos!"
       </p>
     </div>
 

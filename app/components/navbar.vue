@@ -3,20 +3,25 @@ import { ref, onMounted } from "vue";
 import Button from "./button.vue";
 
 const supabase = useSupabaseClient();
+const router = useRouter();
+
 const logout = () => {
   localStorage.removeItem("session_email");
   router.push("/");
 };
+
 defineProps({
   showLandingLinks: Boolean,
   showRegisterLinks: Boolean,
   showSesionLinks: Boolean,
   showHomeLinks: Boolean,
+  showAlterLinks: Boolean,
 });
 
 const sessionMail = ref(null);
 const sessionUser = ref(null);
 const sessionProfile = ref(null);
+const friendCode = ref(null);
 
 onMounted(async () => {
   sessionMail.value = localStorage.getItem("session_email");
@@ -29,27 +34,37 @@ onMounted(async () => {
     .eq("email", sessionMail.value)
     .single();
 
-  if (error) {
-    return;
+  if (!error && username) {
+    sessionUser.value = username.username;
   }
+
   const { data: profile, error: profileError } = await supabase
     .from("perfiles")
     .select("foto_perfil_url")
     .eq("email_usuario", sessionMail.value)
     .single();
 
-  if (profileError) {
-    return;
+  if (!profileError && profile) {
+    sessionProfile.value = profile.foto_perfil_url;
   }
-  sessionUser.value = username.username;
-  sessionProfile.value = profile.foto_perfil_url;
+
+  const { data: friendData, error: friendError } = await supabase
+    .from("usuarios")
+    .select("friend_number")
+    .eq("email", sessionMail.value)
+    .single();
+
+  if (!friendError && friendData?.friend_number) {
+    friendCode.value = friendData.friend_number.toString().padStart(8, "0");
+  }
 });
 </script>
+
 <template>
   <nav
     class="fixed top-0 left-0 z-50 w-full flex justify-between items-center bg-[#fcf5e8] text-[#bfa695] h-16 px-4 sm:px-6 md:px-10 lg:px-16 shadow-sm"
   >
-    <router-link to="/" v-if="!showHomeLinks">
+    <router-link to="/" v-if="showLandingLinks">
       <img
         src="/Chawy.png"
         alt="Chawy"
@@ -58,13 +73,14 @@ onMounted(async () => {
     </router-link>
 
     <ul
-      class="flex flex-wrap items-center gap-2 sm:gap-4 md:gap-6 text-xs sm:text-sm md:text-base"
+      class="w-full flex flex-wrap items-center gap-2 sm:gap-4 md:gap-6 text-xs sm:text-sm md:text-base"
     >
       <li v-if="showLandingLinks">
         <a href="#funcion" class="hover:text-[#c9684a] whitespace-nowrap">
           Como funciona
         </a>
       </li>
+
       <li v-if="showLandingLinks">
         <a href="#historias" class="hover:text-[#c9684a] whitespace-nowrap">
           Historias
@@ -77,23 +93,40 @@ onMounted(async () => {
         </a>
       </li>
 
-      <li
-        v-if="showHomeLinks"
-        class="flex items-center gap-2 whitespace-nowrap"
-      >
-        <span v-if="sessionUser">Hola {{ sessionUser }}</span>
-        <img
-          v-if="sessionProfile"
-          :src="sessionProfile"
-          alt="Foto de perfil"
-          class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full object-cover"
-        />
-      </li>
+      <router-link to="/alterUser">
+        <li
+          v-if="showHomeLinks"
+          class="flex items-center gap-2 whitespace-nowrap hover:cursor-pointer"
+        >
+          <span v-if="sessionUser" class="hover:underline">
+            Hola {{ sessionUser }}
+          </span>
+
+          <img
+            v-if="sessionProfile"
+            :src="sessionProfile"
+            alt="Foto de perfil"
+            class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full object-cover"
+          />
+        </li>
+      </router-link>
 
       <li v-if="showHomeLinks">
-        <a href="/" class="underline whitespace-nowrap" @click="logout">
+        <a href="/" class="hover:underline whitespace-nowrap" @click="logout">
           Cerrar Sesión
         </a>
+      </li>
+
+      <li
+        v-if="showAlterLinks"
+        class="w-full flex justify-between items-center cursor-pointer hover:underline"
+        @click="navigator.clipboard.writeText(friendCode)"
+      >
+        <a href="/home" class="whitespace-nowrap">Volver</a>
+
+        <span v-if="friendCode">
+          Tu código de amigo: <b>{{ friendCode }}</b>
+        </span>
       </li>
 
       <li v-if="showSesionLinks">

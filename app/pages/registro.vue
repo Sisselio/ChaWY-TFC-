@@ -112,7 +112,7 @@ const insertData = async () => {
       class="md:w-1/2 w-full flex flex-col justify-center items-center p-8 bg-[#ecd1b2]"
     >
       <Navbar
-        :showLandingLinks="false"
+        :showLandingLinks="true"
         :showRegisterLinks="false"
         :showSesionLinks="true"
       />
