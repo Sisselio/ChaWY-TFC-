@@ -57,8 +57,25 @@ async function seleccionarChat(chat) {
         filter: `chat_id=eq.${chat.chat_id}`,
       },
       (payload) => {
-        mensajes.value.push(payload.new);
-        scrollAbajo();
+        const yaExiste = mensajes.value.some(
+          (m) =>
+            m.from_user === payload.new.from_user &&
+            m.content === payload.new.content &&
+            String(m.id).startsWith("temp-"),
+        );
+
+        if (yaExiste) {
+          const idx = mensajes.value.findIndex(
+            (m) =>
+              m.from_user === payload.new.from_user &&
+              m.content === payload.new.content &&
+              String(m.id).startsWith("temp-"),
+          );
+          mensajes.value.splice(idx, 1, payload.new);
+        } else {
+          mensajes.value.push(payload.new);
+          scrollAbajo();
+        }
       },
     )
     .subscribe();
@@ -79,6 +96,16 @@ async function enviarMensaje() {
   if (!contenido || !chatSeleccionado.value) return;
 
   nuevoMensaje.value = "";
+
+  const mensajeTemporal = {
+    id: `temp-${Date.now()}`,
+    chat_id: chatSeleccionado.value.chat_id,
+    from_user: sessionMail.value,
+    content: contenido,
+  };
+
+  mensajes.value.push(mensajeTemporal);
+  scrollAbajo();
 
   await supabase.from("messages").insert({
     chat_id: chatSeleccionado.value.chat_id,
