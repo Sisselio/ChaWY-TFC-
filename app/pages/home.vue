@@ -330,7 +330,6 @@ async function rechazar() {
   siguiente();
 }
 </script>
-
 <template>
   <Navbar
     :showLandingLinks="false"
@@ -339,64 +338,77 @@ async function rechazar() {
     :showHomeLinks="true"
   />
 
-  <div class="relative w-full h-[calc(100vh-76px)] overflow-hidden">
-    <div v-if="loading" class="text-center mt-16">Cargando…</div>
+  <div
+    class="relative w-full h-[calc(100dvh-76px)] overflow-hidden bg-[#fdf5f0]"
+  >
+    <div
+      v-if="loading"
+      class="absolute inset-0 flex items-center justify-center"
+    >
+      <div class="flex flex-col items-center gap-3">
+        <div
+          class="w-8 h-8 rounded-full border-2 border-[#c9684a] border-t-transparent animate-spin"
+        />
+        <span class="text-sm text-[#a0715e]">Cargando perfiles…</span>
+      </div>
+    </div>
 
     <div
       v-else-if="perfil"
-      class="absolute inset-0 flex items-start md:items-center justify-center"
+      class="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-in-out"
+      :class="
+        showChat ? 'md:-translate-x-1/4 -translate-x-full' : 'translate-x-0'
+      "
     >
       <div
-        class="transition-transform duration-300 ease-in-out mt-[76px] md:mt-0"
-        :class="{
-          'translate-x-0': !showChat,
-          'md:-translate-x-full': showChat,
+        class="relative w-[320px] sm:w-[360px] h-[500px] sm:h-[540px] rounded-3xl overflow-hidden shadow-2xl"
+        :style="{
+          backgroundImage: `url(${perfil.foto_carta_url})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }"
       >
         <div
-          class="relative w-[340px] h-[520px] rounded-2xl overflow-hidden shadow-xl"
-          :style="{
-            backgroundImage: `url(${perfil.foto_carta_url})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }"
-        >
-          <div
-            class="absolute top-3 left-3 bg-black/50 text-white px-3 py-1 rounded-full text-sm"
+          class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20"
+        />
+
+        <div class="absolute top-4 left-4">
+          <span
+            class="inline-flex items-center gap-1.5 bg-black/40 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full"
           >
             📍 {{ perfil.localizacion }}
+          </span>
+        </div>
+
+        <div class="absolute bottom-0 w-full p-5 text-white">
+          <div class="flex items-end justify-between mb-2">
+            <div>
+              <h2 class="text-xl font-bold leading-tight">
+                {{ perfil.username }}, {{ edad }}
+              </h2>
+              <p class="text-xs text-white/70 mt-0.5">{{ generoIcono }}</p>
+            </div>
           </div>
+          <p class="text-sm text-white/85 leading-relaxed line-clamp-2 mb-5">
+            {{ perfil.biografia }}
+          </p>
 
-          <div
-            class="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4 text-white"
-          >
-            <div class="flex items-center gap-2 text-lg font-semibold">
-              <span>{{ perfil.username }}</span>
-              <span>{{ edad }}</span>
-              <span class="ml-2">{{ generoIcono }}</span>
-            </div>
-            <p class="mt-2 text-sm leading-snug">{{ perfil.biografia }}</p>
-
-            <div class="mt-4 flex justify-between">
-              <button
-                @click="rechazar"
-                class="w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center"
-              >
-                <Icon
-                  name="maki:cross"
-                  class="w-2/3 h-2/3 text-white bg-black"
-                />
-              </button>
-              <button
-                @click="aceptar"
-                class="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center"
-              >
-                <Icon
-                  name="mynaui:heart-solid"
-                  class="w-2/3 h-2/3 text-white bg-red-600"
-                />
-              </button>
-            </div>
+          <div class="flex items-center justify-center gap-8">
+            <button
+              @click="rechazar"
+              class="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/30 flex items-center justify-center hover:bg-red-500/80 hover:border-red-400 active:scale-95 transition-all duration-200"
+              aria-label="Rechazar perfil"
+            >
+              <Icon name="maki:cross" class="w-5 h-5 text-white" />
+            </button>
+            <button
+              @click="aceptar"
+              class="w-16 h-16 rounded-full bg-[#c9684a] flex items-center justify-center shadow-lg shadow-[#c9684a]/40 hover:bg-[#b85a3d] active:scale-95 transition-all duration-200"
+              aria-label="Dar like"
+            >
+              <Icon name="mynaui:heart-solid" class="w-7 h-7 text-white" />
+            </button>
+            <div class="w-14 h-14" />
           </div>
         </div>
       </div>
@@ -404,55 +416,162 @@ async function rechazar() {
 
     <div
       v-else-if="!loading"
-      class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm"
+      class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-8"
     >
-      No hay más perfiles disponibles por ahora 😕
+      <span class="text-4xl">:(</span>
+      <p class="text-[#6b3f2b] font-medium">No hay más perfiles disponibles</p>
+      <p class="text-sm text-[#a0715e]">
+        Vuelve más tarde para ver nuevas personas
+      </p>
     </div>
 
     <div
-      class="absolute top-[76px] right-0 h-[calc(100%-76px)] w-full md:w-1/2 bg-[#f6ede6] border-l border-[#e3a587] transition-transform duration-300 ease-in-out"
-      :class="
-        showChat ? 'translate-x-0' : 'translate-x-full md:translate-x-full'
-      "
+      class="fixed inset-y-0 right-0 w-full md:w-[50%] flex flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out z-40"
+      :style="{ top: '76px', height: 'calc(100dvh - 76px)' }"
+      :class="showChat ? 'translate-x-0' : 'translate-x-full'"
     >
-      <div class="h-full flex">
-        <div class="w-1/3 border-r overflow-y-auto bg-white">
+      <div
+        class="md:hidden flex items-center gap-3 px-4 py-3 border-b border-[#f0e0d6] bg-white shrink-0"
+      >
+        <button
+          v-if="chatSeleccionado"
+          @click="chatSeleccionado = null"
+          class="flex items-center gap-1.5 text-[#c9684a] text-sm font-medium"
+          aria-label="Volver a la lista de chats"
+        >
+          <Icon name="tabler:arrow-left" class="w-4 h-4" />
+          Chats
+        </button>
+        <button
+          v-else
+          @click="toggleChat"
+          class="flex items-center gap-1.5 text-[#c9684a] text-sm font-medium"
+          aria-label="Cerrar chat"
+        >
+          <Icon name="tabler:arrow-left" class="w-4 h-4" />
+          Volver
+        </button>
+
+        <template v-if="chatSeleccionado">
+          <img
+            :src="chatSeleccionado.foto"
+            class="w-8 h-8 rounded-full object-cover ring-2 ring-[#e3a587]"
+            alt=""
+          />
+          <span class="font-semibold text-[#3d2314] text-sm truncate">{{
+            chatSeleccionado.username
+          }}</span>
+        </template>
+        <span v-else class="font-semibold text-[#3d2314] text-sm"
+          >Mensajes</span
+        >
+      </div>
+
+      <div class="flex flex-1 min-h-0">
+        <div
+          class="flex flex-col border-r border-[#f0e0d6] bg-[#fdf5f0] shrink-0 transition-all duration-300"
+          :class="
+            chatSeleccionado
+              ? 'hidden md:flex md:w-[260px]'
+              : 'w-full md:w-[260px]'
+          "
+        >
           <div
-            v-for="chat in chats"
-            :key="chat.chat_id"
-            @click="seleccionarChat(chat)"
-            class="flex items-center gap-3 p-3 border-b cursor-pointer hover:bg-[#f6ede6] transition-colors"
-            :class="{
-              'bg-[#f6ede6] border-l-4 border-l-[#c9684a]':
-                chatSeleccionado?.chat_id === chat.chat_id,
-            }"
+            class="hidden md:flex items-center justify-between px-5 py-4 border-b border-[#f0e0d6]"
           >
-            <img :src="chat.foto" class="w-10 h-10 rounded-full object-cover" />
-            <div class="flex flex-col">
-              <span class="font-semibold text-sm">{{ chat.username }}</span>
+            <h3
+              class="font-semibold text-[#3d2314] text-sm tracking-wide uppercase"
+            >
+              Mensajes
+            </h3>
+            <button
+              @click="toggleChat"
+              class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#f0e0d6] transition-colors"
+              aria-label="Cerrar panel de chat"
+            >
+              <Icon name="tabler:x" class="w-4 h-4 text-[#a0715e]" />
+            </button>
+          </div>
+
+          <div class="flex-1 overflow-y-auto">
+            <div
+              v-if="!chats.length"
+              class="flex flex-col items-center justify-center h-full gap-3 px-6 text-center py-12"
+            >
+              <p class="text-sm text-[#a0715e] leading-relaxed">
+                Cuando tengas un match aparecerá aquí tu conversación
+              </p>
             </div>
+
+            <button
+              v-for="chat in chats"
+              :key="chat.chat_id"
+              @click="seleccionarChat(chat)"
+              class="w-full flex items-center gap-3 px-4 py-3.5 border-b border-[#f0e0d6] hover:bg-white transition-colors text-left"
+              :class="
+                chatSeleccionado?.chat_id === chat.chat_id
+                  ? 'bg-white border-l-[3px] border-l-[#c9684a]'
+                  : ''
+              "
+              :aria-label="`Abrir chat con ${chat.username}`"
+              :aria-current="
+                chatSeleccionado?.chat_id === chat.chat_id ? 'true' : 'false'
+              "
+            >
+              <div class="relative shrink-0">
+                <img
+                  :src="chat.foto"
+                  class="w-11 h-11 rounded-full object-cover"
+                  :alt="chat.username"
+                />
+                <span
+                  class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full ring-2 ring-white"
+                />
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-semibold text-sm text-[#3d2314] truncate">{{
+                  chat.username
+                }}</span>
+                <span class="text-xs text-[#a0715e] truncate"
+                  >Toca para chatear</span
+                >
+              </div>
+            </button>
           </div>
         </div>
 
-        <div class="w-2/3 flex flex-col">
+        <div
+          class="flex flex-col flex-1 min-w-0 min-h-0"
+          :class="chatSeleccionado ? 'flex' : 'hidden md:flex'"
+        >
           <div
-            class="p-4 font-semibold text-[#6b3f2b] border-b bg-white flex items-center gap-3"
+            class="hidden md:flex items-center gap-3 px-5 py-3.5 border-b border-[#f0e0d6] bg-white shrink-0"
           >
             <template v-if="chatSeleccionado">
               <img
                 :src="chatSeleccionado.foto"
-                class="w-8 h-8 rounded-full object-cover"
+                class="w-9 h-9 rounded-full object-cover ring-2 ring-[#e3a587]"
+                alt=""
               />
-              {{ chatSeleccionado.username }}
+              <div class="flex flex-col min-w-0">
+                <span class="font-semibold text-sm text-[#3d2314] truncate">{{
+                  chatSeleccionado.username
+                }}</span>
+                <span class="text-xs text-green-500">En línea</span>
+              </div>
             </template>
-            <template v-else>Selecciona un chat</template>
+            <template v-else>
+              <span class="text-sm text-[#a0715e]"
+                >Selecciona una conversación</span
+              >
+            </template>
           </div>
 
           <div
             ref="mensajesContainer"
-            class="flex-1 p-4 overflow-y-auto flex flex-col gap-2"
+            class="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-2 bg-[#fdf5f0]"
           >
-            <template v-if="chatSeleccionado">
+            <template v-if="chatSeleccionado && mensajes.length">
               <div
                 v-for="msg in mensajes"
                 :key="msg.id"
@@ -464,38 +583,63 @@ async function rechazar() {
                 "
               >
                 <div
-                  class="max-w-[75%] px-3 py-2 rounded-2xl text-sm"
+                  class="max-w-[78%] sm:max-w-[65%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed"
                   :class="
                     msg.from_user === sessionMail
-                      ? 'bg-[#c9684a] text-white rounded-br-sm'
-                      : 'bg-white text-gray-800 rounded-bl-sm shadow-sm'
+                      ? 'bg-[#c9684a] text-white rounded-br-sm shadow-sm shadow-[#c9684a]/20'
+                      : 'bg-white text-[#3d2314] rounded-bl-sm shadow-sm'
                   "
                 >
                   {{ msg.content }}
                 </div>
               </div>
             </template>
-            <div v-else class="text-center text-gray-400 mt-8 text-sm">
-              Elige una conversación para empezar a chatear 💬
+
+            <div
+              v-else-if="chatSeleccionado && !mensajes.length"
+              class="flex-1 flex flex-col items-center justify-center gap-2 text-center py-12"
+            >
+              <p class="text-sm text-[#a0715e]">
+                ¡Di hola a {{ chatSeleccionado.username }}!
+              </p>
+            </div>
+
+            <div
+              v-else
+              class="flex-1 flex flex-col items-center justify-center gap-3 text-center py-12"
+            >
+              <p class="text-sm text-[#a0715e]">
+                Elige una conversación para empezar a chatear
+              </p>
             </div>
           </div>
 
-          <div class="p-4 border-t bg-white flex gap-2">
-            <input
-              v-model="nuevoMensaje"
-              type="text"
-              placeholder="Escribe un mensaje..."
-              class="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:border-[#c9684a]"
-              :disabled="!chatSeleccionado"
-              @keyup.enter="enviarMensaje"
-            />
-            <button
-              @click="enviarMensaje"
-              :disabled="!chatSeleccionado"
-              class="bg-[#c9684a] hover:bg-[#a85230] disabled:opacity-40 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Enviar
-            </button>
+          <div
+            class="px-4 py-3 border-t border-[#f0e0d6] bg-white shrink-0"
+            style="padding-bottom: max(12px, env(safe-area-inset-bottom))"
+          >
+            <div class="flex items-center gap-2">
+              <input
+                v-model="nuevoMensaje"
+                type="text"
+                placeholder="Escribe un mensaje…"
+                class="flex-1 min-w-0 bg-[#fdf5f0] border border-[#e3c4b3] rounded-2xl px-4 py-2.5 text-sm text-[#3d2314] placeholder-[#c4a090] focus:outline-none focus:border-[#c9684a] focus:ring-2 focus:ring-[#c9684a]/10 transition-all"
+                :disabled="!chatSeleccionado"
+                @keyup.enter="enviarMensaje"
+                aria-label="Escribe un mensaje"
+              />
+              <button
+                @click="enviarMensaje"
+                :disabled="!chatSeleccionado || !nuevoMensaje.trim()"
+                class="shrink-0 w-10 h-10 rounded-full bg-[#c9684a] flex items-center justify-center disabled:opacity-40 hover:bg-[#b85a3d] active:scale-95 transition-all duration-150 shadow-sm"
+                aria-label="Enviar mensaje"
+              >
+                <Icon
+                  name="tabler:send"
+                  class="w-4 h-4 text-white translate-x-px"
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -503,29 +647,46 @@ async function rechazar() {
 
     <button
       @click="toggleChat"
-      class="fixed bottom-1 right-6 z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#a85230] text-white text-xl shadow-lg flex items-center justify-center"
+      class="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#b85a3d] active:scale-95 text-white shadow-xl shadow-[#c9684a]/30 items-center justify-center transition-all duration-200"
+      :class="showChat ? 'hidden' : 'flex'"
+      aria-label="Abrir mensajes"
     >
-      <Icon name="tabler:message-filled" class="w-2/3 h-2/3 text-white" />
+      <Icon name="tabler:message-filled" class="w-6 h-6 text-white" />
     </button>
 
     <div
       v-if="showMatchPopup"
-      class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100]"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="match-title"
     >
-      <div class="bg-white rounded-2xl p-6 w-[320px] text-center shadow-2xl">
-        <h2 class="text-2xl font-bold text-[#c9684a] mb-4">¡Es un Match! 💖</h2>
+      <div
+        class="bg-white rounded-3xl p-7 w-full max-w-[320px] text-center shadow-2xl"
+      >
+        <div
+          class="w-16 h-16 rounded-full bg-[#fdf5f0] flex items-center justify-center mx-auto mb-4"
+        >
+          <span class="text-3xl"></span>
+        </div>
+        <h2 id="match-title" class="text-2xl font-bold text-[#3d2314] mb-1">
+          ¡Es un Match!
+        </h2>
+        <p class="text-sm text-[#a0715e] mb-5">Os gustáis mutuamente</p>
         <img
           :src="matchProfile?.foto_carta_url"
-          class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-[#c9684a]"
+          class="w-24 h-24 rounded-full mx-auto object-cover ring-4 ring-[#c9684a] ring-offset-2"
+          :alt="matchProfile?.username"
         />
-        <p class="mt-4 text-gray-700">
-          Tú y <strong>{{ matchProfile?.username }}</strong> os gustáis
-          mutuamente.
+        <p class="mt-4 text-[#3d2314] text-sm">
+          Tú y
+          <strong class="font-semibold">{{ matchProfile?.username }}</strong> os
+          gustáis mutuamente.
         </p>
-        <div class="mt-6 flex gap-3 justify-center">
+        <div class="mt-6 flex gap-3">
           <button
             @click="showMatchPopup = false"
-            class="px-4 py-2 rounded-lg border"
+            class="flex-1 px-4 py-2.5 rounded-xl border border-[#e3c4b3] text-sm font-medium text-[#6b3f2b] hover:bg-[#fdf5f0] transition-colors"
           >
             Seguir viendo
           </button>
@@ -536,7 +697,7 @@ async function rechazar() {
                 showChat = true;
               }
             "
-            class="px-4 py-2 rounded-lg bg-[#c9684a] text-white"
+            class="flex-1 px-4 py-2.5 rounded-xl bg-[#c9684a] text-white text-sm font-medium hover:bg-[#b85a3d] transition-colors"
           >
             Ir al chat
           </button>
