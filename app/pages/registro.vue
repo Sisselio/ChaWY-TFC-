@@ -5,9 +5,9 @@ const router = useRouter();
 const supabase = useSupabaseClient();
 const data = ref([]);
 const error = ref(null);
-const email = ref("");
-const user = ref("");
-const password = ref("");
+const user = ref("TestUser");
+const email = ref("test@email.com");
+const password = ref("Test@pwd1");
 const popupMessage = ref("");
 const showPopup = ref(false);
 

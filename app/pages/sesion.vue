@@ -1,19 +1,26 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+
 const router = useRouter();
-const formError = ref("");
 const supabase = useSupabaseClient();
+
+const formError = ref("");
 const data = ref([]);
 const error = ref(null);
+
 const email = ref("");
 const password = ref("");
+
 const popupMessage = ref("");
 const showPopup = ref(false);
+
+const ADMIN_EMAIL = "admin@chawi.web";
 
 const triggerPopup = (message) => {
   popupMessage.value = message;
   showPopup.value = true;
 };
+
 const validateForm = () => {
   if (!email.value || !password.value) {
     return false;
@@ -34,6 +41,7 @@ const validateForm = () => {
   formError.value = "";
   return true;
 };
+
 const validateData = async () => {
   error.value = null;
 
@@ -41,22 +49,29 @@ const validateData = async () => {
     triggerPopup("Corrija los errores en el formulario antes de enviar.");
     return;
   }
-  const { data, error: err } = await supabase
+
+  const { data: userData, error: err } = await supabase
     .from("usuarios")
     .select("*")
     .eq("email", email.value)
     .eq("password", password.value)
     .single();
 
-  if (err || !data) {
+  if (err || !userData) {
     triggerPopup("Email o contraseña incorrectos");
     return;
   }
 
-  localStorage.setItem("session_email", email.value);
-  triggerPopup("Sesion iniciada exitosamente.");
-  router.push("/home");
+  triggerPopup("Sesión iniciada exitosamente.");
+
+  if (email.value === ADMIN_EMAIL) {
+    router.push("/admin");
+  } else {
+    localStorage.setItem("session_email", email.value);
+    router.push("/home");
+  }
 };
+
 onMounted(async () => {
   const { data: result, error: err } = await supabase
     .from("usuarios")
