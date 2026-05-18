@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
-
+definePageMeta({
+  middleware: ["admin"],
+});
 const supabase = useSupabaseClient();
 
 const tables = ref([]);

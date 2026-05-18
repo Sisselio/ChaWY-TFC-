@@ -64,10 +64,14 @@ const validateData = async () => {
 
   triggerPopup("Sesión iniciada exitosamente.");
 
+  // guardar sesión
+  localStorage.setItem("session_email", email.value);
+
   if (email.value === ADMIN_EMAIL) {
+    localStorage.setItem("session_role", "admin");
     router.push("/admin");
   } else {
-    localStorage.setItem("session_email", email.value);
+    localStorage.setItem("session_role", "user");
     router.push("/home");
   }
 };

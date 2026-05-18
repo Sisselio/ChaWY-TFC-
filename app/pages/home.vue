@@ -15,10 +15,44 @@ const chatSeleccionado = ref(null);
 const mensajes = ref([]);
 const nuevoMensaje = ref("");
 const mensajesContainer = ref(null);
-let mensajesChannel = null;
+const showNotificaciones = ref(false);
+const notificaciones = ref([]);
+let chatsChannels = [];
+
+function toggleNotificaciones() {
+  showNotificaciones.value = !showNotificaciones.value;
+}
+
+async function cargarNotificaciones() {
+  if (!sessionMail.value) return;
+  const { data } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_email", sessionMail.value)
+    .order("created_at", { ascending: false });
+  notificaciones.value = data || [];
+}
+
+async function marcarLeida(id) {
+  await supabase.from("notifications").update({ read: true }).eq("id", id);
+  const n = notificaciones.value.find((n) => n.id === id);
+  if (n) n.read = true;
+}
+
+const notificacionesNoLeidas = computed(
+  () => notificaciones.value.filter((n) => !n.read).length,
+);
 
 function toggleChat() {
   showChat.value = !showChat.value;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
 function plural(g) {
@@ -39,46 +73,7 @@ function calcularEdad(fechaNacimiento) {
 async function seleccionarChat(chat) {
   chatSeleccionado.value = chat;
   localStorage.setItem("chat_seleccionado_id", chat.chat_id);
-
   await cargarMensajes(chat.chat_id);
-
-  if (mensajesChannel) {
-    supabase.removeChannel(mensajesChannel);
-  }
-
-  mensajesChannel = supabase
-    .channel(`messages-chat-${chat.chat_id}`)
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "messages",
-        filter: `chat_id=eq.${chat.chat_id}`,
-      },
-      (payload) => {
-        const yaExiste = mensajes.value.some(
-          (m) =>
-            m.from_user === payload.new.from_user &&
-            m.content === payload.new.content &&
-            String(m.id).startsWith("temp-"),
-        );
-
-        if (yaExiste) {
-          const idx = mensajes.value.findIndex(
-            (m) =>
-              m.from_user === payload.new.from_user &&
-              m.content === payload.new.content &&
-              String(m.id).startsWith("temp-"),
-          );
-          mensajes.value.splice(idx, 1, payload.new);
-        } else {
-          mensajes.value.push(payload.new);
-          scrollAbajo();
-        }
-      },
-    )
-    .subscribe();
 }
 
 async function cargarMensajes(chatId) {
@@ -111,6 +106,14 @@ async function enviarMensaje() {
     chat_id: chatSeleccionado.value.chat_id,
     from_user: sessionMail.value,
     content: contenido,
+  });
+
+  await supabase.from("notifications").insert({
+    user_email: chatSeleccionado.value.email,
+    type: "mensaje",
+    payload: `Tienes un nuevo mensaje de ${myProfile.value?.username || sessionMail.value}`,
+    read: false,
+    chat_id: chatSeleccionado.value.chat_id,
   });
 }
 
@@ -163,6 +166,54 @@ async function cargarChats() {
 
   chats.value.splice(0, chats.value.length, ...lista);
 
+  for (const ch of chatsChannels) {
+    supabase.removeChannel(ch);
+  }
+  chatsChannels = [];
+
+  for (const chat of lista) {
+    const canal = supabase
+      .channel(`notif-chat-${chat.chat_id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `chat_id=eq.${chat.chat_id}`,
+        },
+        (payload) => {
+          if (payload.new.from_user !== sessionMail.value) {
+            notificaciones.value.unshift({
+              id: `notif-temp-${Date.now()}`,
+              user_email: sessionMail.value,
+              type: "mensaje",
+              payload: `Tienes un nuevo mensaje de ${chat.username}`,
+              read: false,
+              chat_id: chat.chat_id,
+              created_at: new Date().toISOString(),
+            });
+
+            if (chatSeleccionado.value?.chat_id === chat.chat_id) {
+              const yaExiste = mensajes.value.some(
+                (m) =>
+                  m.from_user === payload.new.from_user &&
+                  m.content === payload.new.content &&
+                  String(m.id).startsWith("temp-"),
+              );
+              if (!yaExiste) {
+                mensajes.value.push(payload.new);
+                scrollAbajo();
+              }
+            }
+          }
+        },
+      )
+      .subscribe();
+
+    chatsChannels.push(canal);
+  }
+
   const chatGuardadoId = localStorage.getItem("chat_seleccionado_id");
   if (chatGuardadoId && !chatSeleccionado.value) {
     const chatRestaurado = lista.find(
@@ -184,7 +235,7 @@ onMounted(async () => {
 
     const { data: yo, error: yoError } = await supabase
       .from("perfiles")
-      .select("genero, preferencia_genero")
+      .select("genero, preferencia_genero, usuarios(username)")
       .eq("email_usuario", sessionMail.value)
       .single();
 
@@ -193,7 +244,10 @@ onMounted(async () => {
       return;
     }
 
-    myProfile.value = yo;
+    myProfile.value = {
+      ...yo,
+      username: yo.usuarios?.username || sessionMail.value,
+    };
 
     const { data: misMatches } = await supabase
       .from("matches")
@@ -220,20 +274,39 @@ onMounted(async () => {
       return;
     }
 
-    perfiles.value = (perfilesData || [])
-      .filter((p) => {
-        if (emailsExcluidos.has(p.email_usuario)) return false;
-        const yoAcepto =
-          yo.preferencia_genero === "ambos" ||
-          yo.preferencia_genero === plural(p.genero);
-        const elMeAcepta =
-          p.preferencia_genero === "ambos" ||
-          p.preferencia_genero === plural(yo.genero);
-        return yoAcepto && elMeAcepta;
-      })
-      .map((p) => ({ ...p, username: p.usuarios?.username || "Usuario" }));
+    perfiles.value = shuffle(
+      (perfilesData || [])
+        .filter((p) => {
+          if (emailsExcluidos.has(p.email_usuario)) return false;
+          const yoAcepto =
+            yo.preferencia_genero === "ambos" ||
+            yo.preferencia_genero === plural(p.genero);
+          const elMeAcepta =
+            p.preferencia_genero === "ambos" ||
+            p.preferencia_genero === plural(yo.genero);
+          return yoAcepto && elMeAcepta;
+        })
+        .map((p) => ({ ...p, username: p.usuarios?.username || "Usuario" })),
+    );
 
     await cargarChats();
+    await cargarNotificaciones();
+
+    supabase
+      .channel("realtime-notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_email=eq.${sessionMail.value}`,
+        },
+        (payload) => {
+          notificaciones.value.unshift(payload.new);
+        },
+      )
+      .subscribe();
 
     supabase
       .channel("realtime-chats")
@@ -308,6 +381,15 @@ async function guardarLike(valor) {
       .single();
 
     await supabase.from("chats").insert({ match_id: nuevoMatch.id });
+
+    await supabase.from("notifications").insert([
+      {
+        user_email: yoEsA ? user_b : user_a,
+        type: "match",
+        payload: `¡Tienes un nuevo match!`,
+        read: false,
+      },
+    ]);
 
     matchProfile.value = perfil.value;
     showMatchPopup.value = true;
@@ -425,6 +507,7 @@ async function rechazar() {
       </p>
     </div>
 
+    <!-- Panel chat -->
     <div
       class="fixed inset-y-0 right-0 w-full md:w-[50%] flex flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out z-40"
       :style="{ top: '76px', height: 'calc(100dvh - 76px)' }"
@@ -645,6 +728,87 @@ async function rechazar() {
       </div>
     </div>
 
+    <!-- Panel notificaciones -->
+    <div
+      class="fixed inset-y-0 right-0 w-full md:w-[50%] flex flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out z-40"
+      :style="{ top: '76px', height: 'calc(100dvh - 76px)' }"
+      :class="showNotificaciones ? 'translate-x-0' : 'translate-x-full'"
+    >
+      <div
+        class="flex items-center justify-between px-5 py-4 border-b border-[#f0e0d6] shrink-0"
+      >
+        <h3
+          class="font-semibold text-[#3d2314] text-sm tracking-wide uppercase"
+        >
+          Notificaciones
+        </h3>
+        <button
+          @click="toggleNotificaciones"
+          class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#f0e0d6] transition-colors"
+          aria-label="Cerrar notificaciones"
+        >
+          <Icon name="tabler:x" class="w-4 h-4 text-[#a0715e]" />
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto">
+        <div
+          v-if="!notificaciones.length"
+          class="flex flex-col items-center justify-center h-full gap-3 px-6 text-center py-12"
+        >
+          <p class="text-sm text-[#a0715e]">No tienes notificaciones</p>
+        </div>
+
+        <div
+          v-for="n in notificaciones"
+          :key="n.id"
+          @click="marcarLeida(n.id)"
+          class="flex items-start gap-3 px-4 py-3.5 border-b border-[#f0e0d6] cursor-pointer hover:bg-[#fdf5f0] transition-colors"
+          :class="!n.read ? 'bg-[#fdf5f0]' : 'bg-white'"
+        >
+          <div
+            class="w-9 h-9 rounded-full bg-[#c9684a]/10 flex items-center justify-center shrink-0"
+          >
+            <span v-if="n.type === 'match'" class="text-lg">💞</span>
+            <span v-else class="text-lg">💬</span>
+          </div>
+          <div class="flex flex-col min-w-0 flex-1">
+            <p class="text-sm text-[#3d2314]">{{ n.payload }}</p>
+            <span class="text-xs text-[#a0715e] mt-0.5">{{
+              new Date(n.created_at).toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            }}</span>
+          </div>
+          <span
+            v-if="!n.read"
+            class="shrink-0 w-2 h-2 rounded-full bg-[#c9684a] mt-1.5"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón notificaciones -->
+    <button
+      @click="toggleNotificaciones"
+      class="fixed z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#b85a3d] active:scale-95 text-white shadow-xl shadow-[#c9684a]/30 items-center justify-center transition-all duration-200"
+      :class="showNotificaciones ? 'hidden' : 'flex'"
+      style="bottom: 6rem; right: 1.5rem"
+      aria-label="Abrir notificaciones"
+    >
+      <Icon name="tabler:bell" class="w-6 h-6 text-white" />
+      <span
+        v-if="notificacionesNoLeidas > 0"
+        class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center"
+      >
+        {{ notificacionesNoLeidas > 9 ? "9+" : notificacionesNoLeidas }}
+      </span>
+    </button>
+
+    <!-- Botón chat -->
     <button
       @click="toggleChat"
       class="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#b85a3d] active:scale-95 text-white shadow-xl shadow-[#c9684a]/30 items-center justify-center transition-all duration-200"
@@ -654,6 +818,7 @@ async function rechazar() {
       <Icon name="tabler:message-filled" class="w-6 h-6 text-white" />
     </button>
 
+    <!-- Popup match -->
     <div
       v-if="showMatchPopup"
       class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
@@ -667,7 +832,7 @@ async function rechazar() {
         <div
           class="w-16 h-16 rounded-full bg-[#fdf5f0] flex items-center justify-center mx-auto mb-4"
         >
-          <span class="text-3xl"></span>
+          <span class="text-3xl">💞</span>
         </div>
         <h2 id="match-title" class="text-2xl font-bold text-[#3d2314] mb-1">
           ¡Es un Match!
