@@ -20,6 +20,10 @@ const notificaciones = ref([]);
 let chatsChannels = [];
 
 function toggleNotificaciones() {
+  if (!showNotificaciones.value) {
+    showChat.value = false;
+  }
+
   showNotificaciones.value = !showNotificaciones.value;
 }
 
@@ -44,6 +48,10 @@ const notificacionesNoLeidas = computed(
 );
 
 function toggleChat() {
+  if (!showChat.value) {
+    showNotificaciones.value = false;
+  }
+
   showChat.value = !showChat.value;
 }
 
@@ -795,7 +803,7 @@ async function rechazar() {
     <button
       @click="toggleNotificaciones"
       class="fixed z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#b85a3d] active:scale-95 text-white shadow-xl shadow-[#c9684a]/30 items-center justify-center transition-all duration-200"
-      :class="showNotificaciones ? 'hidden' : 'flex'"
+      :class="showChat || showNotificaciones ? 'hidden' : 'flex'"
       style="bottom: 6rem; right: 1.5rem"
       aria-label="Abrir notificaciones"
     >
@@ -812,7 +820,7 @@ async function rechazar() {
     <button
       @click="toggleChat"
       class="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#b85a3d] active:scale-95 text-white shadow-xl shadow-[#c9684a]/30 items-center justify-center transition-all duration-200"
-      :class="showChat ? 'hidden' : 'flex'"
+      :class="showChat || showNotificaciones ? 'hidden' : 'flex'"
       aria-label="Abrir mensajes"
     >
       <Icon name="tabler:message-filled" class="w-6 h-6 text-white" />
