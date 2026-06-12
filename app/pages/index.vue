@@ -11,6 +11,7 @@ onMounted(() => {
 
 <template>
   <Navbar
+    :showLogo="true"
     :showLandingLinks="true"
     :showRegisterLinks="true"
     :showSesionLinks="true"
@@ -91,4 +92,70 @@ onMounted(() => {
 
     <CharacterCard />
   </section>
+  <footer
+    class="bg-[#6b3f2b] text-[#fdf5ea] py-12 px-6 sm:px-10 md:px-16 lg:px-24"
+  >
+    <div
+      class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-10"
+    >
+      <div class="max-w-sm">
+        <h3 class="font-serif text-3xl font-bold">Chawy</h3>
+
+        <p class="mt-4 text-[#fdf5ea]/80 text-sm leading-relaxed">
+          Conecta con personas que comparten tus valores y construye una
+          historia auténtica y duradera.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-lg mb-4">Legal</h4>
+
+        <ul class="space-y-2 text-sm text-[#fdf5ea]/80">
+          <li>
+            <a href="#" class="hover:text-white transition"
+              >Política de Privacidad</a
+            >
+          </li>
+          <li>
+            <a href="#" class="hover:text-white transition"
+              >Términos y Condiciones</a
+            >
+          </li>
+          <li>
+            <a href="#" class="hover:text-white transition"
+              >Política de Cookies</a
+            >
+          </li>
+          <li>
+            <a href="#" class="hover:text-white transition">Aviso Legal</a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-lg mb-4">Contacto</h4>
+
+        <ul class="space-y-2 text-sm text-[#fdf5ea]/80">
+          <li>contacto@chawy.com</li>
+          <li>Madrid, España</li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-semibold text-lg mb-4">Síguenos</h4>
+
+        <div class="flex gap-4 text-sm">
+          <a href="#" class="hover:text-white transition"> Instagram </a>
+          <a href="#" class="hover:text-white transition"> TikTok </a>
+          <a href="#" class="hover:text-white transition"> X </a>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="border-t border-[#fdf5ea]/20 mt-10 pt-6 text-center text-sm text-[#fdf5ea]/60"
+    >
+      © {{ new Date().getFullYear() }} Chawy. Todos los derechos reservados.
+    </div>
+  </footer>
 </template>

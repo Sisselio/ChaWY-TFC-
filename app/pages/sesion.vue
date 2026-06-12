@@ -64,7 +64,6 @@ const validateData = async () => {
 
   triggerPopup("Sesión iniciada exitosamente.");
 
-  // guardar sesión
   localStorage.setItem("session_email", email.value);
 
   if (email.value === ADMIN_EMAIL) {
@@ -99,6 +98,8 @@ onMounted(async () => {
       class="w-full md:w-1/2 flex flex-col justify-center items-center p-8 bg-[#ecd1b2]"
     >
       <Navbar
+        :showLogo="true"
+        s
         :showLandingLinks="false"
         :showRegisterLinks="true"
         :showSesionLinks="false"

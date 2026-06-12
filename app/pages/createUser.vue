@@ -120,14 +120,9 @@ const triggerPopup = (message) => {
   showPopup.value = true;
 };
 async function uploadImage(file, tipo) {
-  console.log("FILE:", file);
-  console.log("EMAIL:", sessionMail.value);
-
   const ext = file.name.split(".").pop();
   const safeEmail = sessionMail.value.replace(/[@.]/g, "_");
   const fileName = `${safeEmail}_${tipo}.${ext}`;
-
-  console.log("FILENAME:", fileName);
 
   const { data, error } = await supabase.storage
     .from("Fotos")
@@ -141,8 +136,6 @@ async function uploadImage(file, tipo) {
   const { data: publicData } = supabase.storage
     .from("Fotos")
     .getPublicUrl(fileName);
-
-  console.log("PUBLIC URL:", publicData.publicUrl);
 
   return publicData.publicUrl;
 }

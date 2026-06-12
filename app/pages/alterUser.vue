@@ -201,70 +201,36 @@ async function deleteImage(url) {
 
 async function updateProfile() {
   try {
-    console.log("=== INICIO UPDATE PROFILE ===");
-    console.log("hasNewPerfilImage:", hasNewPerfilImage.value);
-    console.log("fotoPerfil:", fotoPerfil.value);
-    console.log("hasNewCartaImage:", hasNewCartaImage.value);
-    console.log("fotoCarta:", fotoCarta.value);
-    console.log("currentPerfilUrl:", currentPerfilUrl.value);
-    console.log("currentCartaUrl:", currentCartaUrl.value);
-
     let fotoPerfilUrl = currentPerfilUrl.value;
     let fotoCartaUrl = currentCartaUrl.value;
 
-    // Solo procesar foto de perfil si hay una nueva imagen seleccionada
     if (hasNewPerfilImage.value && fotoPerfil.value) {
-      console.log("=== SUBIENDO FOTO PERFIL ===");
       const nuevaUrl = await uploadImage(fotoPerfil.value, "perfil");
-      console.log("Nueva URL perfil:", nuevaUrl);
 
       if (nuevaUrl) {
         if (currentPerfilUrl.value) {
-          console.log(
-            "Borrando foto antigua de perfil:",
-            currentPerfilUrl.value,
-          );
           await deleteImage(currentPerfilUrl.value);
         }
         fotoPerfilUrl = nuevaUrl;
-        console.log("fotoPerfilUrl actualizada a:", fotoPerfilUrl);
       } else {
         triggerPopup("Error al subir la foto de perfil");
         return;
       }
     }
 
-    // Solo procesar foto de carta si hay una nueva imagen seleccionada
     if (hasNewCartaImage.value && fotoCarta.value) {
-      console.log("=== SUBIENDO FOTO CARTA ===");
       const nuevaUrl = await uploadImage(fotoCarta.value, "carta");
-      console.log("Nueva URL carta:", nuevaUrl);
 
       if (nuevaUrl) {
         if (currentCartaUrl.value) {
-          console.log("Borrando foto antigua de carta:", currentCartaUrl.value);
           await deleteImage(currentCartaUrl.value);
         }
         fotoCartaUrl = nuevaUrl;
-        console.log("fotoCartaUrl actualizada a:", fotoCartaUrl);
       } else {
         triggerPopup("Error al subir la foto de carta");
         return;
       }
     }
-
-    console.log("=== ACTUALIZANDO BD ===");
-    console.log("Datos a guardar:", {
-      email_usuario: sessionMail.value,
-      fecha_nacimiento: fechaNacimiento.value,
-      genero: genero.value,
-      preferencia_genero: generoPreferido.value,
-      biografia: biografia.value,
-      localizacion: localizacion.value,
-      foto_perfil_url: fotoPerfilUrl,
-      foto_carta_url: fotoCartaUrl,
-    });
-
     const { data, error } = await supabase
       .from("perfiles")
       .update({
@@ -278,14 +244,10 @@ async function updateProfile() {
         foto_carta_url: fotoCartaUrl,
       })
       .eq("email_usuario", sessionMail.value)
-      .select(); // IMPORTANTE: añadir .select() para ver qué se guardó
-
-    console.log("Resultado BD:", data);
-    console.log("Error BD:", error);
+      .select();
 
     if (error) throw error;
 
-    // Actualizar las URLs actuales y resetear TODO
     currentPerfilUrl.value = fotoPerfilUrl;
     currentCartaUrl.value = fotoCartaUrl;
     fotoPerfil.value = null;
@@ -293,7 +255,6 @@ async function updateProfile() {
     hasNewPerfilImage.value = false;
     hasNewCartaImage.value = false;
 
-    console.log("=== PERFIL ACTUALIZADO ===");
     triggerPopup("Perfil actualizado correctamente");
   } catch (error) {
     console.error("Error actualizando perfil:", error);
@@ -302,8 +263,6 @@ async function updateProfile() {
 }
 async function deleteUser() {
   try {
-    console.log("=== INICIANDO BORRADO DE USUARIO ===");
-
     if (!sessionMail.value) {
       triggerPopup("No hay sesión activa");
       return;
@@ -331,20 +290,13 @@ async function deleteUser() {
     );
 
     if (!confirmacion2) return;
-
-    console.log("Usuario confirmó el borrado");
-
-    console.log("=== BORRANDO FOTOS ===");
     if (currentPerfilUrl.value) {
-      console.log("Borrando foto de perfil:", currentPerfilUrl.value);
       await deleteImage(currentPerfilUrl.value);
     }
     if (currentCartaUrl.value) {
-      console.log("Borrando foto de carta:", currentCartaUrl.value);
       await deleteImage(currentCartaUrl.value);
     }
 
-    console.log("=== BORRANDO LIKES (userA) ===");
     const { error: errorLikesA } = await supabase
       .from("likes")
       .delete()
@@ -355,7 +307,6 @@ async function deleteUser() {
       throw errorLikesA;
     }
 
-    console.log("=== BORRANDO LIKES (userB) ===");
     const { error: errorLikesB } = await supabase
       .from("likes")
       .delete()
@@ -365,7 +316,6 @@ async function deleteUser() {
       console.error("Error borrando likes userB:", errorLikesB);
       throw errorLikesB;
     }
-    console.log("=== BORRANDO LIKES (userA) ===");
     const { error: errorMatchesA } = await supabase
       .from("matches")
       .delete()
@@ -376,7 +326,6 @@ async function deleteUser() {
       throw errorMatchesA;
     }
 
-    console.log("=== BORRANDO matches (userB) ===");
     const { error: errorMatchesB } = await supabase
       .from("matches")
       .delete()
@@ -386,7 +335,6 @@ async function deleteUser() {
       console.error("Error borrando matches userB:", errorMatchesB);
       throw errorMatchesB;
     }
-    console.log("=== BORRANDO PERFIL ===");
     const { error: errorPerfil } = await supabase
       .from("perfiles")
       .delete()
@@ -397,7 +345,6 @@ async function deleteUser() {
       throw errorPerfil;
     }
 
-    console.log("=== BORRANDO USUARIO ===");
     const { error: errorUsuario } = await supabase
       .from("usuarios")
       .delete()
@@ -407,8 +354,6 @@ async function deleteUser() {
       console.error("Error borrando usuario:", errorUsuario);
       throw errorUsuario;
     }
-
-    console.log("=== USUARIO BORRADO EXITOSAMENTE ===");
 
     localStorage.removeItem("session_email");
     sessionMail.value = null;

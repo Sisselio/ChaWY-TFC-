@@ -422,6 +422,7 @@ async function rechazar() {
 </script>
 <template>
   <Navbar
+    :showLogo="true"
     :showLandingLinks="false"
     :showRegisterLinks="false"
     :showSesionLinks="false"
@@ -515,7 +516,6 @@ async function rechazar() {
       </p>
     </div>
 
-    <!-- Panel chat -->
     <div
       class="fixed inset-y-0 right-0 w-full md:w-[50%] flex flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out z-40"
       :style="{ top: '76px', height: 'calc(100dvh - 76px)' }"
@@ -736,7 +736,6 @@ async function rechazar() {
       </div>
     </div>
 
-    <!-- Panel notificaciones -->
     <div
       class="fixed inset-y-0 right-0 w-full md:w-[50%] flex flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out z-40"
       :style="{ top: '76px', height: 'calc(100dvh - 76px)' }"
@@ -799,7 +798,6 @@ async function rechazar() {
       </div>
     </div>
 
-    <!-- Botón notificaciones -->
     <button
       @click="toggleNotificaciones"
       class="fixed z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#b85a3d] active:scale-95 text-white shadow-xl shadow-[#c9684a]/30 items-center justify-center transition-all duration-200"
@@ -816,7 +814,6 @@ async function rechazar() {
       </span>
     </button>
 
-    <!-- Botón chat -->
     <button
       @click="toggleChat"
       class="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#c9684a] hover:bg-[#b85a3d] active:scale-95 text-white shadow-xl shadow-[#c9684a]/30 items-center justify-center transition-all duration-200"
@@ -826,7 +823,6 @@ async function rechazar() {
       <Icon name="tabler:message-filled" class="w-6 h-6 text-white" />
     </button>
 
-    <!-- Popup match -->
     <div
       v-if="showMatchPopup"
       class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4"

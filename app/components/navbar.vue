@@ -10,7 +10,14 @@ const logout = () => {
   router.push("/");
 };
 
+const copyFriendCode = async () => {
+  if (friendCode.value) {
+    await navigator.clipboard.writeText(friendCode.value);
+  }
+};
+
 defineProps({
+  showLogo: Boolean,
   showLandingLinks: Boolean,
   showRegisterLinks: Boolean,
   showSesionLinks: Boolean,
@@ -64,7 +71,8 @@ onMounted(async () => {
   <nav
     class="fixed top-0 left-0 z-50 w-full flex justify-between items-center bg-[#fcf5e8] text-[#bfa695] h-16 px-4 sm:px-6 md:px-10 lg:px-16 shadow-sm"
   >
-    <router-link to="/" v-if="showLandingLinks">
+    <!-- Logo -->
+    <router-link to="/" v-if="showLogo" class="flex items-center gap-2">
       <img
         src="/Chawy.png"
         alt="Chawy"
@@ -75,6 +83,7 @@ onMounted(async () => {
     <ul
       class="w-full flex flex-wrap items-center gap-2 sm:gap-4 md:gap-6 text-xs sm:text-sm md:text-base"
     >
+      <!-- Landing links -->
       <li v-if="showLandingLinks">
         <a href="#funcion" class="hover:text-[#c9684a] whitespace-nowrap">
           Como funciona
@@ -87,15 +96,17 @@ onMounted(async () => {
         </a>
       </li>
 
+      <!-- Register -->
       <li v-if="showRegisterLinks">
         <a href="/registro" class="underline whitespace-nowrap">
           Registrarse
         </a>
       </li>
 
-      <router-link to="/alterUser">
-        <li
-          v-if="showHomeLinks"
+      <!-- User profile -->
+      <li v-if="showHomeLinks">
+        <router-link
+          to="/alterUser"
           class="flex items-center gap-2 whitespace-nowrap hover:cursor-pointer"
         >
           <span v-if="sessionUser" class="hover:underline">
@@ -108,27 +119,34 @@ onMounted(async () => {
             alt="Foto de perfil"
             class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full object-cover"
           />
-        </li>
-      </router-link>
-
-      <li v-if="showHomeLinks">
-        <a href="/" class="hover:underline whitespace-nowrap" @click="logout">
-          Cerrar Sesión
-        </a>
+        </router-link>
       </li>
 
+      <!-- Logout -->
+      <li v-if="showHomeLinks">
+        <button
+          type="button"
+          class="hover:underline whitespace-nowrap"
+          @click="logout"
+        >
+          Cerrar Sesión
+        </button>
+      </li>
+
+      <!-- Friend code -->
       <li
         v-if="showAlterLinks"
         class="w-full flex justify-between items-center cursor-pointer hover:underline"
-        @click="navigator.clipboard.writeText(friendCode)"
+        @click="copyFriendCode"
       >
-        <a href="/home" class="whitespace-nowrap">Volver</a>
+        <router-link to="/home" class="whitespace-nowrap"> Volver </router-link>
 
         <span v-if="friendCode">
           Tu código de amigo: <b>{{ friendCode }}</b>
         </span>
       </li>
 
+      <!-- Login -->
       <li v-if="showSesionLinks">
         <Button
           href="/sesion"
