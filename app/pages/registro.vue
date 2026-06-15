@@ -113,7 +113,7 @@ const insertData = async () => {
     >
       <Navbar
         :showLogo="true"
-        :showLandingLinks="true"
+        :showLandingLinks="false"
         :showRegisterLinks="false"
         :showSesionLinks="true"
       />
